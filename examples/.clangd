@@ -1,0 +1,4 @@
+# Ejemplo RV32I: estos flags se agregan a los de compile_commands.json.
+# Ajustar al proyecto; no copiar a proyectos host ni ARM.
+CompileFlags:
+  Add: [-march=rv32i, -mabi=ilp32, --target=riscv32-unknown-elf]

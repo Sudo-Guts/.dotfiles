@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# shellcheck disable=SC2034
+# Binarios fijados; plugins en nvim/lazy-lock.json.
+NVIM_VERSION="${NVIM_VERSION:-v0.12.5}"
+NVIM_MIN_VERSION=0.12.0
+KITTY_VERSION="${KITTY_VERSION:-0.49.1}"
+KITTY_MIN_VERSION=0.49.1
+TREE_SITTER_VERSION="${TREE_SITTER_VERSION:-v0.27.0}"
+NERD_FONT_VERSION="${NERD_FONT_VERSION:-v3.4.0}"

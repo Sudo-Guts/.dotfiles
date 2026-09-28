@@ -1,0 +1,6 @@
+*.backup
+*.backup.*
+.DS_Store
+nvim/.luarc.json
+__pycache__/
+*.pyc

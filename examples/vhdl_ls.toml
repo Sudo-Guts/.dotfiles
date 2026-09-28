@@ -1,0 +1,3 @@
+# Rutas relativas al proyecto; ajustar a tu estructura.
+[libraries.defaultlib]
+files = ["src/**/*.vhd", "tb/**/*.vhd"]

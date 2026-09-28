@@ -1,0 +1,3 @@
+# Lista del proyecto para Verible; ajustar rutas.
+src/cpu_core.v
+tb/cpu_core_tb.sv

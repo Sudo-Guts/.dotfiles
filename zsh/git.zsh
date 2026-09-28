@@ -1,0 +1,11 @@
+# Solo presentación. Ningún git config ni consulta de red al abrir Zsh.
+ZSH_THEME_GIT_PROMPT_PREFIX=" on %F{green}"
+ZSH_THEME_GIT_PROMPT_SUFFIX="%f"
+ZSH_THEME_GIT_PROMPT_DIRTY=""
+ZSH_THEME_GIT_PROMPT_CLEAN=""
+ZSH_THEME_GIT_PROMPT_ADDED="%F{green} ✚%f"
+ZSH_THEME_GIT_PROMPT_MODIFIED="%F{blue} ✹%f"
+ZSH_THEME_GIT_PROMPT_DELETED="%F{red} ✖%f"
+ZSH_THEME_GIT_PROMPT_RENAMED="%F{magenta} ➜%f"
+ZSH_THEME_GIT_PROMPT_UNMERGED="%F{yellow} ═%f"
+ZSH_THEME_GIT_PROMPT_UNTRACKED="%F{cyan} ✭%f"
