@@ -36,4 +36,22 @@ vim.api.nvim_create_autocmd("TermOpen", {
     vim.wo.relativenumber = false
   end,
 })
+
+-- ============================================================
+-- Kitty keyboard protocol workaround
+-- ============================================================
+
+-- Neovim 0.12 habilita eventos press/repeat/release del protocolo
+-- Kitty. En algunos entornos esto provoca que Tab, Backspace y
+-- Enter se procesen dos veces.
+--
+-- Conservamos la desambiguación de teclas, pero desactivamos
+-- los eventos de release/repeat.
+
+if vim.env.TERM == "xterm-kitty" then
+  vim.schedule(function()
+    vim.api.nvim_ui_send("\27[=1u")
+  end)
+end
+
 -- No se inyectan secuencias de teclado de Kitty: Neovim negocia su protocolo.

@@ -1,10 +1,85 @@
 #!/usr/bin/env bash
+
+# ============================================================
+# Zsh Installation
+# ============================================================
+#
+# GUTS Dotfiles
+#
+# Instala y configura las dependencias de Zsh:
+#
+#   - Zsh
+#   - fzf
+#   - Oh My Zsh
+#   - zsh-autosuggestions
+#   - zsh-history-substring-search
+#   - zsh-syntax-highlighting
+#
+# El archivo ~/.zshrc NO se modifica aquí.
+# bootstrap.sh administra el enlace simbólico correspondiente.
+#
+# ============================================================
+
+
+# ============================================================
+# Shared Library
+# ============================================================
+
 source "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
-apt_install zsh fzf git
+
+
+# ============================================================
+# Dependencies
+# ============================================================
+
+apt_install \
+    zsh \
+    fzf \
+    git
+
+
+# ============================================================
+# Oh My Zsh
+# ============================================================
+
 zsh_root="${ZSH:-$HOME/.oh-my-zsh}"
-sync_repo https://github.com/ohmyzsh/ohmyzsh.git "$zsh_root"
+
+log "Instalando/comprobando Oh My Zsh..."
+
+sync_repo \
+    "https://github.com/ohmyzsh/ohmyzsh.git" \
+    "$zsh_root"
+
+
+# ============================================================
+# Plugins
+# ============================================================
+
 plugin_root="${ZSH_CUSTOM:-$zsh_root/custom}/plugins"
-for plugin in zsh-autosuggestions zsh-history-substring-search zsh-syntax-highlighting; do
-    sync_repo "https://github.com/zsh-users/$plugin.git" "$plugin_root/$plugin"
+
+mkdir -p "$plugin_root"
+
+plugins=(
+    zsh-autosuggestions
+    zsh-history-substring-search
+    zsh-syntax-highlighting
+)
+
+for plugin in "${plugins[@]}"; do
+
+    log "Instalando/comprobando plugin: $plugin"
+
+    sync_repo \
+        "https://github.com/zsh-users/$plugin.git" \
+        "$plugin_root/$plugin"
+
 done
-log 'Zsh listo; fzf usa apt y bootstrap administra .zshrc.'
+
+
+# ============================================================
+# Done
+# ============================================================
+
+log "Zsh listo."
+log "fzf se administra mediante APT."
+log "bootstrap.sh administra ~/.zshrc."

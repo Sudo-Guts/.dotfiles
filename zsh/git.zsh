@@ -1,4 +1,3 @@
-# Solo presentación. Ningún git config ni consulta de red al abrir Zsh.
 ZSH_THEME_GIT_PROMPT_PREFIX=" on %F{green}"
 ZSH_THEME_GIT_PROMPT_SUFFIX="%f"
 ZSH_THEME_GIT_PROMPT_DIRTY=""

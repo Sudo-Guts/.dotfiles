@@ -9,7 +9,7 @@
 alias Zsh='nvim ~/.zshrc'
 alias Kitty='nvim ~/.config/kitty/kitty.conf'
 alias Neovim='cd ~/.config/nvim'
-alias Dotfiles='cd ~/.dotfiles'
+alias Dotfiles='cd "$DOTFILES"'
 
 # ------------------------------------------------------------
 # General

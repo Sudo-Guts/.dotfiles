@@ -1,19 +1,224 @@
 #!/usr/bin/env bash
+
+# ============================================================
+# Neovim Installation
+# ============================================================
+#
+# GUTS Dotfiles
+#
+# Instala y prepara el entorno principal de Neovim:
+#
+#   - Neovim
+#   - clangd
+#   - clang-format
+#   - GDB
+#   - Tree-sitter CLI
+#
+# Neovim se instala localmente en:
+#
+#   ~/.local/opt/nvim-<version>
+#
+# y se expone mediante:
+#
+#   ~/.local/bin/nvim
+#
+# Las versiones se administran desde:
+#
+#   install/versions.sh
+#
+# ============================================================
+
+
+# ============================================================
+# Shared Library
+# ============================================================
+
 source "$(dirname -- "${BASH_SOURCE[0]}")/lib.sh"
-require_command curl
-current="$(nvim --version 2>/dev/null | sed -n '1s/NVIM v//p' || true)"
-if [[ -n "$current" ]] && version_ge "$current" "$NVIM_MIN_VERSION" && [[ "$DOTFILES_UPDATE" == 0 ]]; then
-    log "Neovim $current satisface el mínimo."
+
+
+# ============================================================
+# Dependencies
+# ============================================================
+
+require_command tar
+
+
+# ============================================================
+# Current Neovim
+# ============================================================
+
+current="$(
+    nvim --version 2>/dev/null |
+        sed -n '1s/^NVIM v//p' ||
+        true
+)"
+
+
+# ============================================================
+# Existing Installation
+# ============================================================
+
+if [[ -n "$current" ]] &&
+   version_ge "$current" "$NVIM_MIN_VERSION" &&
+   [[ "$DOTFILES_UPDATE" == "0" ]]; then
+
+    log "Neovim $current satisface el mínimo requerido."
+
 else
-    case "$(uname -m)" in x86_64) arch=x86_64;; aarch64|arm64) arch=arm64;; *) die 'Arquitectura Neovim no soportada.';; esac
-    work="$(mktemp -d)"; trap 'rm -rf -- "$work"' EXIT
-    download "https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-linux-$arch.tar.gz" "$work/nvim.tar.gz"
-    tar --no-same-owner -xzf "$work/nvim.tar.gz" -C "$work"
-    "$work/nvim-linux-$arch/bin/nvim" --version
-    mkdir -p "$HOME/.local/opt" "$HOME/.local/bin"
+
+    # ========================================================
+    # Architecture
+    # ========================================================
+
+    case "$(uname -m)" in
+
+        x86_64)
+            arch="x86_64"
+            ;;
+
+        aarch64|arm64)
+            arch="arm64"
+            ;;
+
+        *)
+            die "Arquitectura Neovim no soportada: $(uname -m)"
+            ;;
+
+    esac
+
+
+    # ========================================================
+    # Paths
+    # ========================================================
+
     target="$HOME/.local/opt/nvim-$NVIM_VERSION"
-    if [[ ! -d "$target" ]]; then mv "$work/nvim-linux-$arch" "$target"; fi
-    ln -sfnT "$target/bin/nvim" "$HOME/.local/bin/nvim"
+
+    mkdir -p \
+        "$HOME/.local/opt" \
+        "$HOME/.local/bin"
+
+
+    # ========================================================
+    # Temporary Workspace
+    # ========================================================
+
+    work="$(mktemp -d)"
+
+    trap 'rm -rf -- "$work"' EXIT
+
+    archive="$work/nvim.tar.gz"
+    extracted="$work/nvim-linux-$arch"
+
+
+    # ========================================================
+    # Download
+    # ========================================================
+
+    log "Descargando Neovim $NVIM_VERSION..."
+
+    download \
+        "https://github.com/neovim/neovim/releases/download/$NVIM_VERSION/nvim-linux-$arch.tar.gz" \
+        "$archive"
+
+
+    # ========================================================
+    # Extract
+    # ========================================================
+
+    log "Extrayendo Neovim..."
+
+    tar \
+        --no-same-owner \
+        -xzf "$archive" \
+        -C "$work"
+
+
+    [[ -x "$extracted/bin/nvim" ]] ||
+        die "El paquete descargado no contiene un ejecutable Neovim válido."
+
+
+    # ========================================================
+    # Verify Downloaded Version
+    # ========================================================
+
+    downloaded_version="$(
+        "$extracted/bin/nvim" --version |
+            sed -n '1s/^NVIM v//p'
+    )"
+
+    expected_version="${NVIM_VERSION#v}"
+
+    [[ "$downloaded_version" == "$expected_version" ]] ||
+        die "Versión inesperada de Neovim: $downloaded_version; se esperaba $expected_version."
+
+
+    # ========================================================
+    # Install
+    # ========================================================
+
+    # El directorio target pertenece completamente a los
+    # dotfiles. Si entramos en el flujo de instalación,
+    # reemplazamos la copia administrada anterior.
+
+    if [[ -e "$target" ]]; then
+        log "Reemplazando instalación administrada: $target"
+        rm -rf -- "$target"
+    fi
+
+    mv \
+        "$extracted" \
+        "$target"
+
+
+    # ========================================================
+    # Local Binary
+    # ========================================================
+
+    ln -sfnT \
+        "$target/bin/nvim" \
+        "$HOME/.local/bin/nvim"
+
+
+    # ========================================================
+    # Verification
+    # ========================================================
+
+    installed_version="$(
+        "$HOME/.local/bin/nvim" --version |
+            sed -n '1s/^NVIM v//p'
+    )"
+
+    [[ "$installed_version" == "$expected_version" ]] ||
+        die "La instalación de Neovim no pudo verificarse."
+
+    log "Neovim $installed_version instalado."
+
 fi
-apt_install clangd clang-format gdb
+
+
+# ============================================================
+# C / C++ Development Tools
+# ============================================================
+
+log "Instalando herramientas C/C++..."
+
+apt_install \
+    clangd \
+    clang-format \
+    gdb
+
+
+# ============================================================
+# Tree-sitter CLI
+# ============================================================
+
+log "Comprobando Tree-sitter CLI..."
+
 bash "$DOTFILES_ROOT/install/treesitter-cli.sh"
+
+
+# ============================================================
+# Done
+# ============================================================
+
+log "Entorno base de Neovim listo."
